@@ -1,4 +1,96 @@
-from PIL import Image
+from PIL import Image, ImageTk
+import tkinter as tk
+from tkinter import filedialog
+
+
+class ImageEncryptorDecryptorApp:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Image Encryptor & Decryptor")
+
+        # File paths for images
+        self.main_img_path = ""
+        self.hidden_img_path = ""
+        self.encrypted_img_path = ""
+
+        # Create UI elements
+        self.main_img_label = tk.Label(root, text="MAIN Image:")
+        self.hidden_img_label = tk.Label(root, text="HIDDEN Image:")
+        self.encrypted_img_label = tk.Label(
+            root, text="ENCRYPTED Image to be decrypted:")
+
+        self.main_img_button = tk.Button(
+            root, text="Upload", command=self.upload_main_image)
+        self.hidden_img_button = tk.Button(
+            root, text="Upload", command=self.upload_hidden_image)
+        self.encrypted_img_button = tk.Button(
+            root, text="Upload", command=self.upload_encrypted_image)
+
+        self.encrypt_button = tk.Button(
+            root, text="Encrypt", command=self.encrypt)
+        self.decrypt_button = tk.Button(
+            root, text="Decrypt", command=self.decrypt)
+
+        self.status_label = tk.Label(root, text="")
+        self.status_label.grid(row=4, column=0, columnspan=2)
+
+        # Place UI elements using grid
+        self.main_img_label.grid(row=0, column=0)
+        self.main_img_button.grid(row=0, column=1)
+
+        self.hidden_img_label.grid(row=1, column=0)
+        self.hidden_img_button.grid(row=1, column=1)
+
+        self.encrypted_img_label.grid(row=2, column=0)
+        self.encrypted_img_button.grid(row=2, column=1)
+
+        self.encrypt_button.grid(row=3, column=0)
+        self.decrypt_button.grid(row=3, column=1)
+
+    def upload_main_image(self):
+        self.main_img_path = filedialog.askopenfilename(
+            title="Select MAIN Image")
+        if self.main_img_path:
+            self.main_img_button.config(text=f"Uploaded: {self.main_img_path}")
+
+    def upload_hidden_image(self):
+        self.hidden_img_path = filedialog.askopenfilename(
+            title="Select HIDDEN Image")
+        if self.hidden_img_path:
+            self.hidden_img_button.config(
+                text=f"Uploaded: {self.hidden_img_path}")
+
+    def upload_encrypted_image(self):
+        self.encrypted_img_path = filedialog.askopenfilename(
+            title="Select ENCRYPTED Image to be decrypted")
+        if self.encrypted_img_path:
+            self.encrypted_img_button.config(
+                text=f"Uploaded: {self.encrypted_img_path}")
+
+    def encrypt(self):
+        if self.main_img_path and self.hidden_img_path:
+            save_path = filedialog.asksaveasfilename(
+                title="Save Encrypted Image As", defaultextension=".png")
+            if save_path:
+                encrypt(self.main_img_path, self.hidden_img_path,
+                        save_path, num_bits=3)
+                self.status_label.config(
+                    text=f"Encryption complete. Encrypted image saved at: {save_path}")
+        else:
+            self.status_label.config(
+                text="Please select both MAIN and HIDDEN images for encryption.")
+
+    def decrypt(self):
+        if self.encrypted_img_path:
+            save_path = filedialog.asksaveasfilename(
+                title="Save Decrypted Image As", defaultextension=".png")
+            if save_path:
+                decrypt(self.encrypted_img_path, save_path, num_bits=3)
+                self.status_label.config(
+                    text=f"Decryption complete. Decrypted image saved at: {save_path}")
+        else:
+            self.status_label.config(
+                text="Please select the ENCRYPTED image for decryption.")
 
 
 def encrypt(main_img_path, hidden_img_path, encrypted_img_path, num_bits=2):
@@ -61,19 +153,7 @@ def decrypt(encrypted_img_path, decrypted_img_path, num_bits=2):
     decrypted_img.save(decrypted_img_path)
 
 
-# Example usage
-MAIN_IMG_PATH = "img/MAIN.jpg"
-HIDDEN_IMG_PATH = "img/HIDDEN.jpg"
-ENCRYPTED_IMG_PATH = "img/ENCRYPTED.png"
-DECRYPTED_IMG_PATH = "img/DECRYPTED.png"
-
-isEncrypted = False  # Set to True for encryption, False for decryption
-
-if isEncrypted:
-    # Encryption with 4 bits per channel (adjust as needed)
-    encrypt(MAIN_IMG_PATH, HIDDEN_IMG_PATH, ENCRYPTED_IMG_PATH, num_bits=3)
-    print("Encryption complete. Encrypted image saved at:", ENCRYPTED_IMG_PATH)
-else:
-    # Decryption with 4 bits per channel (should match the encryption setting)
-    decrypt(ENCRYPTED_IMG_PATH, DECRYPTED_IMG_PATH, num_bits=3)
-    print("Decryption complete. Decrypted image saved at:", DECRYPTED_IMG_PATH)
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = ImageEncryptorDecryptorApp(root)
+    root.mainloop()
